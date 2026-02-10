@@ -10,7 +10,7 @@ import { SimpleUserButton } from "@/components/simple-user-button"
 import { Shield, ArrowLeft } from "lucide-react"
 import { getUserRole, getOrders, cleanupOldOrders } from "@/lib/storage"
 import { Order } from "@/lib/types"
-import OrderCard from "@/components/order-card"
+import OrderListItem from "@/components/order-list-item"
 import AcceptOrderDialog from "@/components/admin/accept-order-dialog"
 import RejectOrderDialog from "@/components/admin/reject-order-dialog"
 import { useSimpleAuth } from "@/lib/simple-auth"
@@ -67,10 +67,14 @@ export default function AdminDashboard() {
     loadOrders()
   }
 
-  const newOrders = orders.filter(o => o.status === 'pending')
-  const processingOrders = orders.filter(o => o.status === 'accepted' || o.status === 'prepared' || o.status === 'pickup_requested')
-  const deliveredOrders = orders.filter(o => o.status === 'delivered')
-  const rejectedOrders = orders.filter(o => o.status === 'rejected')
+  const sortByOrderNumber = (a: Order, b: Order) => {
+    return a.orderNumber.localeCompare(b.orderNumber)
+  }
+
+  const newOrders = orders.filter(o => o.status === 'pending').sort(sortByOrderNumber)
+  const processingOrders = orders.filter(o => o.status === 'accepted' || o.status === 'prepared' || o.status === 'pickup_requested').sort(sortByOrderNumber)
+  const deliveredOrders = orders.filter(o => o.status === 'delivered').sort(sortByOrderNumber)
+  const rejectedOrders = orders.filter(o => o.status === 'rejected').sort(sortByOrderNumber)
 
   if (!mounted || !user) {
     return null
@@ -127,7 +131,7 @@ export default function AdminDashboard() {
               </Card>
             ) : (
               newOrders.map(order => (
-                <OrderCard 
+                <OrderListItem 
                   key={order.id} 
                   order={order} 
                   onUpdate={loadOrders}
@@ -148,7 +152,7 @@ export default function AdminDashboard() {
               </Card>
             ) : (
               processingOrders.map(order => (
-                <OrderCard 
+                <OrderListItem 
                   key={order.id} 
                   order={order} 
                   onUpdate={loadOrders}
@@ -167,7 +171,7 @@ export default function AdminDashboard() {
               </Card>
             ) : (
               deliveredOrders.map(order => (
-                <OrderCard 
+                <OrderListItem 
                   key={order.id} 
                   order={order} 
                   onUpdate={loadOrders}
@@ -186,7 +190,7 @@ export default function AdminDashboard() {
               </Card>
             ) : (
               rejectedOrders.map(order => (
-                <OrderCard 
+                <OrderListItem 
                   key={order.id} 
                   order={order} 
                   onUpdate={loadOrders}

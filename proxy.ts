@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   // For simple auth mode, we don't need server-side middleware
   // Authentication is handled client-side
   return NextResponse.next()
