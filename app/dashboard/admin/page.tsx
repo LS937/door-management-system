@@ -36,7 +36,6 @@ export default function AdminDashboard() {
 
     if (mounted && user) {
       const role = getUserRole(user.id)
-      console.log(role);
       if (role !== 'admin') {
         router.push(`/dashboard/${role}`)
         return
