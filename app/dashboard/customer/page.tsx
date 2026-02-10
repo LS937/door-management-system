@@ -11,7 +11,7 @@ import { Package, Plus, Truck, ArrowLeft } from "lucide-react"
 import { getUserRole, getOrdersByCustomer, cleanupOldOrders } from "@/lib/storage"
 import { Order } from "@/lib/types"
 import PlaceOrderDialog from "@/components/customer/place-order-dialog"
-import OrderCard from "@/components/order-card"
+import OrderListItem from "@/components/order-list-item"
 import PickupRequestDialog from "@/components/customer/pickup-request-dialog"
 import { useSimpleAuth } from "@/lib/simple-auth"
 
@@ -61,10 +61,14 @@ export default function CustomerDashboard() {
     setShowPickupRequest(false)
   }
 
-  const pendingOrders = orders.filter(o => o.status === 'pending')
-  const acceptedOrders = orders.filter(o => o.status === 'accepted' || o.status === 'prepared' || o.status === 'pickup_requested')
-  const deliveredOrders = orders.filter(o => o.status === 'delivered')
-  const rejectedOrders = orders.filter(o => o.status === 'rejected')
+  const sortByOrderNumber = (a: Order, b: Order) => {
+    return a.orderNumber.localeCompare(b.orderNumber)
+  }
+
+  const pendingOrders = orders.filter(o => o.status === 'pending').sort(sortByOrderNumber)
+  const acceptedOrders = orders.filter(o => o.status === 'accepted' || o.status === 'prepared' || o.status === 'pickup_requested').sort(sortByOrderNumber)
+  const deliveredOrders = orders.filter(o => o.status === 'delivered').sort(sortByOrderNumber)
+  const rejectedOrders = orders.filter(o => o.status === 'rejected').sort(sortByOrderNumber)
   const preparedOrders = orders.filter(o => o.status === 'prepared')
 
   if (!mounted || !user) {
@@ -138,7 +142,7 @@ export default function CustomerDashboard() {
               </Card>
             ) : (
               acceptedOrders.map(order => (
-                <OrderCard key={order.id} order={order} onUpdate={loadOrders} />
+                <OrderListItem key={order.id} order={order} onUpdate={loadOrders} />
               ))
             )}
           </TabsContent>
@@ -152,7 +156,7 @@ export default function CustomerDashboard() {
               </Card>
             ) : (
               pendingOrders.map(order => (
-                <OrderCard key={order.id} order={order} onUpdate={loadOrders} />
+                <OrderListItem key={order.id} order={order} onUpdate={loadOrders} />
               ))
             )}
           </TabsContent>
@@ -166,7 +170,7 @@ export default function CustomerDashboard() {
               </Card>
             ) : (
               deliveredOrders.map(order => (
-                <OrderCard key={order.id} order={order} onUpdate={loadOrders} />
+                <OrderListItem key={order.id} order={order} onUpdate={loadOrders} />
               ))
             )}
           </TabsContent>
@@ -180,7 +184,7 @@ export default function CustomerDashboard() {
               </Card>
             ) : (
               rejectedOrders.map(order => (
-                <OrderCard key={order.id} order={order} onUpdate={loadOrders} />
+                <OrderListItem key={order.id} order={order} onUpdate={loadOrders} />
               ))
             )}
           </TabsContent>
