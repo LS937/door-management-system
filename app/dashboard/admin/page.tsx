@@ -26,6 +26,12 @@ export default function AdminDashboard() {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const loadOrders = async () => {
+    await cleanupOldOrders();
+    const allOrders = await getOrders();
+    setOrders(allOrders);
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -48,12 +54,6 @@ export default function AdminDashboard() {
       checkRoleAndLoadOrders();
     }
   }, [user, router, mounted]);
-
-  const loadOrders = async () => {
-    await cleanupOldOrders();
-    const allOrders = await getOrders();
-    setOrders(allOrders);
-  };
 
   const handleAcceptOrder = (order: Order) => {
     setSelectedOrder(order);

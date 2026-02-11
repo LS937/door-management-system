@@ -29,6 +29,14 @@ export default function CustomerDashboard() {
   const [showPickupRequest, setShowPickupRequest] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const loadOrders = async () => {
+    if (user) {
+      await cleanupOldOrders();
+      const userOrders = await getOrdersByCustomer(user.id);
+      setOrders(userOrders);
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -51,14 +59,6 @@ export default function CustomerDashboard() {
       checkRoleAndLoadOrders();
     }
   }, [user, router, mounted]);
-
-  const loadOrders = async () => {
-    if (user) {
-      await cleanupOldOrders();
-      const userOrders = await getOrdersByCustomer(user.id);
-      setOrders(userOrders);
-    }
-  };
 
   const handleOrderPlaced = () => {
     loadOrders();
