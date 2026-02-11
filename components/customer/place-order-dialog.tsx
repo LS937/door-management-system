@@ -16,6 +16,9 @@ import { addOrder, getOrders, uploadOrderPhoto } from "@/lib/storage";
 import { Order } from "@/lib/types";
 import { Upload, X } from "lucide-react";
 
+// Constants
+const ORDER_NUMBER_PATTERN = /^\d+$/;
+
 interface PlaceOrderDialogProps {
   userId: string;
   userEmail: string;
@@ -83,7 +86,7 @@ export default function PlaceOrderDialog({
 
     try {
       const trimmed = formData.orderNumber.trim();
-      if (!trimmed || !/^\d+$/.test(trimmed)) {
+      if (!trimmed || !ORDER_NUMBER_PATTERN.test(trimmed)) {
         setOrderNumberError("Order number must be a valid integer.");
         setIsSubmitting(false);
         return;
@@ -181,7 +184,7 @@ export default function PlaceOrderDialog({
               value={formData.orderNumber}
               onChange={(e) => {
                 const val = e.target.value;
-                if (val === "" || /^\d+$/.test(val)) {
+                if (val === "" || ORDER_NUMBER_PATTERN.test(val)) {
                   handleChange("orderNumber", val);
                   setOrderNumberError("");
                 }

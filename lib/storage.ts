@@ -6,6 +6,9 @@ const ORDERS_KEY = 'door-management-orders';
 const PICKUP_REQUESTS_KEY = 'door-management-pickup-requests';
 const USER_ROLES_KEY = 'door-management-user-roles';
 
+// Supabase error codes
+const SUPABASE_NOT_FOUND_CODE = 'PGRST116';
+
 // Helper to check if we're on the client side
 const isClient = typeof window !== 'undefined';
 
@@ -310,7 +313,7 @@ export const getUserRole = async (userId: string): Promise<'customer' | 'admin'>
         .eq('user_id', userId)
         .single();
       
-      if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "not found"
+      if (error && error.code !== SUPABASE_NOT_FOUND_CODE) throw error;
       return data ? data.role as 'customer' | 'admin' : 'customer';
     } catch (error) {
       console.error('Error fetching user role from Supabase:', error);
@@ -401,7 +404,7 @@ export const uploadOrderPhoto = async (file: File, orderId: string): Promise<str
   
   // Only upload to Supabase if configured
   if (!isSupabaseConfigured()) {
-    console.warn('Supabase is not configured. Photo upload skipped.');
+    console.warn('Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables to enable photo uploads.');
     return null;
   }
   
