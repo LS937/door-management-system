@@ -40,19 +40,22 @@ export default function CustomerDashboard() {
     }
 
     if (mounted && user) {
-      const role = getUserRole(user.id);
-      if (role !== "customer") {
-        router.push(`/dashboard/${role}`);
-        return;
-      }
-      loadOrders();
+      const checkRoleAndLoadOrders = async () => {
+        const role = await getUserRole(user.id);
+        if (role !== "customer") {
+          router.push(`/dashboard/${role}`);
+          return;
+        }
+        await loadOrders();
+      };
+      checkRoleAndLoadOrders();
     }
   }, [user, router, mounted]);
 
-  const loadOrders = () => {
+  const loadOrders = async () => {
     if (user) {
-      cleanupOldOrders();
-      const userOrders = getOrdersByCustomer(user.id);
+      await cleanupOldOrders();
+      const userOrders = await getOrdersByCustomer(user.id);
       setOrders(userOrders);
     }
   };

@@ -17,6 +17,7 @@ interface PickupRequestDialogProps {
 
 export default function PickupRequestDialog({ userId, preparedOrders, onClose, onSuccess }: PickupRequestDialogProps) {
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleToggleOrder = (orderId: string) => {
     setSelectedOrderIds(prev => 
@@ -26,29 +27,37 @@ export default function PickupRequestDialog({ userId, preparedOrders, onClose, o
     )
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (selectedOrderIds.length === 0) {
+    if (selectedOrderIds.length === 0 || isSubmitting) {
       return
     }
 
-    const pickupRequest: PickupRequest = {
-      id: crypto.randomUUID(),
-      customerId: userId,
-      orderIds: selectedOrderIds,
-      requestedAt: new Date().toISOString(),
-      status: 'pending',
+    setIsSubmitting(true)
+    try {
+      const pickupRequest: PickupRequest = {
+        id: crypto.randomUUID(),
+        customerId: userId,
+        orderIds: selectedOrderIds,
+        requestedAt: new Date().toISOString(),
+        status: 'pending',
+      }
+
+      await addPickupRequest(pickupRequest)
+
+      // Update order statuses to pickup_requested
+      for (const orderId of selectedOrderIds) {
+        await updateOrder(orderId, { status: 'pickup_requested' })
+      }
+
+      onSuccess()
+    } catch (error) {
+      console.error('Error requesting pickup:', error)
+      alert('Failed to request pickup. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    addPickupRequest(pickupRequest)
-
-    // Update order statuses to pickup_requested
-    selectedOrderIds.forEach(orderId => {
-      updateOrder(orderId, { status: 'pickup_requested' })
-    })
-
-    onSuccess()
   }
 
   return (
@@ -90,15 +99,15 @@ export default function PickupRequestDialog({ userId, preparedOrders, onClose, o
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={isSubmitting}>
               Cancel
             </Button>
             <Button 
               type="submit" 
               className="flex-1"
-              disabled={selectedOrderIds.length === 0}
+              disabled={selectedOrderIds.length === 0 || isSubmitting}
             >
-              Request Pickup ({selectedOrderIds.length})
+              {isSubmitting ? 'Requesting...' : `Request Pickup (${selectedOrderIds.length})`}
             </Button>
           </div>
         </form>

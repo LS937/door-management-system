@@ -37,18 +37,21 @@ export default function AdminDashboard() {
     }
 
     if (mounted && user) {
-      const role = getUserRole(user.id);
-      if (role !== "admin") {
-        router.push(`/dashboard/${role}`);
-        return;
-      }
-      loadOrders();
+      const checkRoleAndLoadOrders = async () => {
+        const role = await getUserRole(user.id);
+        if (role !== "admin") {
+          router.push(`/dashboard/${role}`);
+          return;
+        }
+        await loadOrders();
+      };
+      checkRoleAndLoadOrders();
     }
   }, [user, router, mounted]);
 
-  const loadOrders = () => {
-    cleanupOldOrders();
-    const allOrders = getOrders();
+  const loadOrders = async () => {
+    await cleanupOldOrders();
+    const allOrders = await getOrders();
     setOrders(allOrders);
   };
 

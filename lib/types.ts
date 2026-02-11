@@ -32,6 +32,9 @@ export interface Order {
   
   // Delivery tracking
   deliveredAt?: string;
+  
+  // Photo upload
+  photoUrl?: string;
 }
 
 // User role type

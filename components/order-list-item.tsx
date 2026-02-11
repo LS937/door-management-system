@@ -49,17 +49,25 @@ export default function OrderListItem({
   const status = statusConfig[order.status];
   const StatusIcon = status.icon;
 
-  const handleMarkPrepared = () => {
-    updateOrder(order.id, { status: "prepared" });
-    onUpdate();
+  const handleMarkPrepared = async () => {
+    try {
+      await updateOrder(order.id, { status: "prepared" });
+      onUpdate();
+    } catch (error) {
+      console.error('Error marking order as prepared:', error);
+    }
   };
 
-  const handleMarkDelivered = () => {
-    updateOrder(order.id, {
-      status: "delivered",
-      deliveredAt: new Date().toISOString(),
-    });
-    onUpdate();
+  const handleMarkDelivered = async () => {
+    try {
+      await updateOrder(order.id, {
+        status: "delivered",
+        deliveredAt: new Date().toISOString(),
+      });
+      onUpdate();
+    } catch (error) {
+      console.error('Error marking order as delivered:', error);
+    }
   };
 
   return (
@@ -99,18 +107,33 @@ export default function OrderListItem({
       {isExpanded && (
         <CardContent className="space-y-4 pt-0 pb-4 border-t">
           <div className="grid gap-3">
+            {order.photoUrl && (
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  Order Photo
+                </p>
+                <div className="relative w-full max-w-md">
+                  <img
+                    src={order.photoUrl}
+                    alt={`Order ${order.orderNumber}`}
+                    className="w-full h-auto rounded-lg border border-border shadow-sm"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 Order Message
               </p>
-              <p className="text-sm">{order.orderMessage}</p>
+              <p className="text-sm">{order.orderMessage || "N/A"}</p>
             </div>
 
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 Contact Person
               </p>
-              <p className="text-sm">{order.contactPerson}</p>
+              <p className="text-sm">{order.contactPerson || "N/A"}</p>
             </div>
 
             <div>
@@ -120,19 +143,19 @@ export default function OrderListItem({
               <div className="text-sm space-y-1 mt-1">
                 <p>
                   <span className="font-medium">Name:</span>{" "}
-                  {order.customerInfo.name}
+                  {order.customerInfo.name || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Email:</span>{" "}
-                  {order.customerInfo.email}
+                  {order.customerInfo.email || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Phone:</span>{" "}
-                  {order.customerInfo.phone}
+                  {order.customerInfo.phone || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Address:</span>{" "}
-                  {order.customerInfo.address}
+                  {order.customerInfo.address || "N/A"}
                 </p>
               </div>
             </div>

@@ -15,16 +15,25 @@ interface RejectOrderDialogProps {
 
 export default function RejectOrderDialog({ order, onClose }: RejectOrderDialogProps) {
   const [reason, setReason] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleReject = () => {
-    if (!reason.trim()) return
+  const handleReject = async () => {
+    if (!reason.trim() || isSubmitting) return
 
-    updateOrder(order.id, {
-      status: 'rejected',
-      rejectionReason: reason,
-    })
+    setIsSubmitting(true)
+    try {
+      await updateOrder(order.id, {
+        status: 'rejected',
+        rejectionReason: reason,
+      })
 
-    onClose()
+      onClose()
+    } catch (error) {
+      console.error('Error rejecting order:', error)
+      alert('Failed to reject order. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -47,20 +56,21 @@ export default function RejectOrderDialog({ order, onClose }: RejectOrderDialogP
               onChange={(e) => setReason(e.target.value)}
               required
               rows={4}
+              disabled={isSubmitting}
             />
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={isSubmitting}>
               Cancel
             </Button>
             <Button 
               onClick={handleReject} 
               variant="destructive"
               className="flex-1"
-              disabled={!reason.trim()}
+              disabled={!reason.trim() || isSubmitting}
             >
-              Reject Order
+              {isSubmitting ? 'Rejecting...' : 'Reject Order'}
             </Button>
           </div>
         </div>
