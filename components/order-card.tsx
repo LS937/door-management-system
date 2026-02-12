@@ -29,17 +29,25 @@ export default function OrderCard({ order, onUpdate, isAdmin, onAccept, onReject
   const status = statusConfig[order.status]
   const StatusIcon = status.icon
 
-  const handleMarkPrepared = () => {
-    updateOrder(order.id, { status: 'prepared' })
-    onUpdate()
+  const handleMarkPrepared = async () => {
+    try {
+      await updateOrder(order.id, { status: 'prepared' })
+      onUpdate()
+    } catch (error) {
+      console.error('Error marking order as prepared:', error)
+    }
   }
 
-  const handleMarkDelivered = () => {
-    updateOrder(order.id, { 
-      status: 'delivered',
-      deliveredAt: new Date().toISOString()
-    })
-    onUpdate()
+  const handleMarkDelivered = async () => {
+    try {
+      await updateOrder(order.id, { 
+        status: 'delivered',
+        deliveredAt: new Date().toISOString()
+      })
+      onUpdate()
+    } catch (error) {
+      console.error('Error marking order as delivered:', error)
+    }
   }
 
   return (

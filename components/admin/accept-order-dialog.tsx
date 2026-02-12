@@ -16,16 +16,25 @@ interface AcceptOrderDialogProps {
 
 export default function AcceptOrderDialog({ order, onClose }: AcceptOrderDialogProps) {
   const [selectedDate, setSelectedDate] = useState<Date>()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleAccept = () => {
-    if (!selectedDate) return
+  const handleAccept = async () => {
+    if (!selectedDate || isSubmitting) return
 
-    updateOrder(order.id, {
-      status: 'accepted',
-      expectedDeliveryDate: selectedDate.toISOString(),
-    })
+    setIsSubmitting(true)
+    try {
+      await updateOrder(order.id, {
+        status: 'accepted',
+        expectedDeliveryDate: selectedDate.toISOString(),
+      })
 
-    onClose()
+      onClose()
+    } catch (error) {
+      console.error('Error accepting order:', error)
+      alert('Failed to accept order. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -56,15 +65,15 @@ export default function AcceptOrderDialog({ order, onClose }: AcceptOrderDialogP
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={isSubmitting}>
               Cancel
             </Button>
             <Button 
               onClick={handleAccept} 
               className="flex-1"
-              disabled={!selectedDate}
+              disabled={!selectedDate || isSubmitting}
             >
-              Accept Order
+              {isSubmitting ? 'Accepting...' : 'Accept Order'}
             </Button>
           </div>
         </div>
